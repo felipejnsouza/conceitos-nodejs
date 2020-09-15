@@ -10,6 +10,11 @@ app.use(cors());
 
 const repositories = [];
 
+const giveLike = function(likes) {
+  likes++
+  return likes;
+};
+
 app.get("/repositories", (request, response) => {
   return response.status(200).json(repositories);
 });
@@ -63,11 +68,24 @@ app.delete("/repositories/:id", (request, response) => {
 
   repositories.splice(repositoryIndex, 1);
 
-  return response.status(200).send();
+  return response.status(204).send();
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex( repository => repository.id == id);
+
+  if(repositoryIndex < 0) return response.status(400).json({ error: "Repository not found!"});
+
+  let repository = repositories[repositoryIndex];
+
+  repository.likes = giveLike(repository.likes)
+
+  repositories[repositoryIndex] = repository;
+
+  return response.status(204).json(repository); 
+
 });
 
 module.exports = app;
